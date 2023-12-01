@@ -1,5 +1,5 @@
 const lineReader = require("node:readline").createInterface({
-  input: require("fs").createReadStream("./da.txt"),
+  input: require("fs").createReadStream("./data.txt"),
 });
 
 function isNumeric(number) {
@@ -23,14 +23,14 @@ const numbersAsStringsArray = Object.keys(numbersAsStrings);
 
 function isNumberAsString(line, start, end, way) {
   const string = line.substring(start, end);
+
   const forwards = way === "forwards";
+  const possibleDigit1 = forwards ? string[0] : string[3];
+  const possibleDigit2 = forwards ? string[1] : string[4];
 
   const x = numbersAsStringsArray.find((digitAsString) => {
     if (string.includes(digitAsString)) {
-      if (
-        !isNaN(string[forwards ? 0 : 3]) ||
-        !isNaN(string[forwards ? 1 : 4])
-      ) {
+      if (!isNaN(possibleDigit1) || !isNaN(possibleDigit2)) {
         return false;
       }
       return digitAsString;
@@ -65,29 +65,22 @@ async function getLines() {
         end = line[i];
         break;
       } else if (
-        isNumberAsString(line, i - LONGEST_NUMBER_AS_STRING, i + 1, "backwards")
+        isNumberAsString(
+          line,
+          i - LONGEST_NUMBER_AS_STRING + 1,
+          i + 1,
+          "backwards"
+        )
       ) {
         end =
           numbersAsStrings[
             isNumberAsString(
               line,
-              i - LONGEST_NUMBER_AS_STRING,
+              i - LONGEST_NUMBER_AS_STRING + 1,
               i + 1,
               "backwards"
             )
           ];
-        // console.log(
-        //   "END",
-        //   line,
-        //   numbersAsStrings[
-        //     isNumberAsString(
-        //       line,
-        //       i - LONGEST_NUMBER_AS_STRING,
-        //       i + 1,
-        //       "backwards"
-        //     )
-        //   ]
-        // );
         break;
       }
     }
@@ -97,8 +90,6 @@ async function getLines() {
 }
 
 const x = await getLines().then((res) => res);
-console.log(x);
-let sum = 0;
 
+let sum = 0;
 x.forEach((digit) => (sum += Number(digit)));
-console.log(sum);
